@@ -1,0 +1,20 @@
+# Dados brutos (grandes, baixáveis via data/download.py) -- nunca versionar
+data/raw/
+
+# Kaggle credentials, caso alguém deixe uma cópia local dentro do projeto
+kaggle.json
+
+# Ambiente Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
