@@ -2,13 +2,8 @@
 Download do dataset "Brazilian E-Commerce Public Dataset by Olist" (Kaggle),
 via `kagglehub` (lib oficial, mais simples que a Kaggle CLI).
 
-Pré-requisitos:
-1. Ter o pacote `kagglehub` instalado no ambiente Python:
-       pip install kagglehub
-2. Credenciais Kaggle configuradas (kagglehub aceita qualquer uma das opções):
-   - ~/.kaggle/kaggle.json (ou %USERPROFILE%\\.kaggle\\kaggle.json no Windows)
-   - variáveis de ambiente KAGGLE_USERNAME / KAGGLE_KEY
-   Veja o passo a passo em data/README.md.
+Dataset público: o download funciona anônimo, sem credenciais. Se falhar
+(raro, geralmente rate limit), ver data/README.md para configurar API key.
 
 Uso:
     python data/download.py
@@ -44,14 +39,12 @@ def main() -> int:
     print(f"Baixando dataset '{DATASET}' via kagglehub...")
     try:
         cache_path = kagglehub.dataset_download(DATASET)
-    except Exception as exc:  # kagglehub levanta exceções variadas de auth/rede
+    except Exception as exc:  # kagglehub levanta exceções variadas de rede/rate-limit
         print(
             f"\nFalha ao baixar o dataset: {exc}\n"
-            "Causas mais comuns:\n"
-            "  - kaggle.json ausente/inválido em ~/.kaggle/ (ou %USERPROFILE%\\.kaggle\\ no Windows)\n"
-            "  - variáveis de ambiente KAGGLE_USERNAME/KAGGLE_KEY não configuradas\n"
-            "  - dataset exige aceitar os termos de uso no site do Kaggle antes do primeiro download\n"
-            "Veja o passo a passo em data/README.md.",
+            "Dataset público, download deveria funcionar anônimo. Se persistir:\n"
+            "  - configure credenciais Kaggle (ver data/README.md)\n"
+            "  - ou aceite os termos de uso do dataset manualmente no site do Kaggle",
             file=sys.stderr,
         )
         return 1

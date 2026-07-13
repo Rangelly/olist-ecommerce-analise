@@ -13,44 +13,25 @@
 data/
 ├── raw/         # CSVs originais do Kaggle (NUNCA versionado, ver .gitignore)
 ├── processed/   # dataset analítico limpo, gerado pelo pipeline em src/
-├── download.py  # script de download via Kaggle CLI
+├── download.py  # script de download via kagglehub
 └── README.md    # este arquivo
 ```
 
 ## Como baixar os dados
 
-### 1. Instalar o `kagglehub`
-
 ```bash
-pip install kagglehub
-```
-
-(já incluso em `requirements.txt`)
-
-### 2. Configurar credenciais do Kaggle
-
-1. Acesse [kaggle.com/settings](https://www.kaggle.com/settings) > seção **API** > **Create New Token**.
-2. Isso baixa um arquivo `kaggle.json` contendo `username` e `key`.
-3. Coloque esse arquivo em:
-   - Linux/Mac: `~/.kaggle/kaggle.json`
-   - Windows: `C:\Users\<seu_usuario>\.kaggle\kaggle.json`
-4. (Opcional, alternativa ao arquivo) defina variáveis de ambiente em vez do arquivo:
-   ```bash
-   set KAGGLE_USERNAME=seu_usuario
-   set KAGGLE_KEY=sua_key
-   ```
-5. Na primeira vez, pode ser necessário aceitar os termos de uso do dataset
-   na própria página do Kaggle (botão "Download" uma vez, manualmente, se o
-   download retornar erro 403).
-
-### 3. Rodar o download
-
-```bash
+pip install -r requirements.txt   # inclui kagglehub
 python data/download.py
 ```
 
-Isso usa `kagglehub.dataset_download(...)` para baixar/cachear o dataset e copia
-os CSVs do cache para `data/raw/`.
+Isso usa `kagglehub.dataset_download(...)`, que baixa/cacheia o dataset e copia
+os CSVs do cache para `data/raw/`. Por ser um dataset público, o download
+funciona anônimo, sem precisar de conta/API key do Kaggle.
+
+Se o download falhar (raro, geralmente rate limit), configure credenciais:
+1. [kaggle.com/settings](https://www.kaggle.com/settings) > **API** > **Create New Token**, baixa um `kaggle.json`.
+2. Coloque em `~/.kaggle/kaggle.json` (Linux/Mac) ou `%USERPROFILE%\.kaggle\kaggle.json` (Windows),
+   ou defina `KAGGLE_USERNAME`/`KAGGLE_KEY` como variáveis de ambiente.
 
 ## Arquivos esperados em `data/raw/` após o download
 

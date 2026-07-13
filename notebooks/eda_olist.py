@@ -1,23 +1,23 @@
 """
 EDA - Olist E-commerce
 
-Script de analise exploratoria (nao interativo): carrega o dataset
-analitico ja limpo (data/processed/olist_analytics.parquet), gera
-graficos em reports/ e imprime um resumo de insights no terminal.
+Script de análise exploratória (não interativo): carrega o dataset
+analítico já limpo (data/processed/olist_analytics.parquet), gera
+gráficos em reports/ e imprime um resumo de insights no terminal.
 
-Objetivo do projeto: entender o que impacta a satisfacao do cliente
-(review_score) e o atraso de entrega, com recomendacoes acionaveis.
+Objetivo do projeto: entender o que impacta a satisfação do cliente
+(review_score) e o atraso de entrega, com recomendações de negócio.
 
 Uso:
     python notebooks/eda_olist.py
 
-Le src/PIPELINE_NOTES.md para entender o grao do dataset (1 linha = 1
-item de pedido) e as decisoes de limpeza antes de interpretar qualquer
-numero aqui -- em particular: `delivery_delay_days`/`is_late_delivery`
-sao NaN para pedidos nao entregues/cancelados (nao viram 0), e o dataset
-esta no grao de item, entao pedidos com >1 item aparecem em >1 linha
-(agregamos por order_id quando faz sentido, ex.: satisfacao e atraso sao
-atributos do pedido, nao do item).
+Lê src/PIPELINE_NOTES.md para entender o grão do dataset (1 linha = 1
+item de pedido) e as decisões de limpeza antes de interpretar qualquer
+número aqui -- em particular: `delivery_delay_days`/`is_late_delivery`
+são NaN para pedidos não entregues/cancelados (não viram 0), e o dataset
+está no grão de item, então pedidos com >1 item aparecem em >1 linha
+(agregamos por order_id quando faz sentido, ex.: satisfação e atraso são
+atributos do pedido, não do item).
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ import matplotlib.ticker as mticker
 import pandas as pd
 import seaborn as sns
 
-matplotlib.use("Agg")  # nao interativo -- roda via terminal, sem abrir janela
+matplotlib.use("Agg")  # não interativo -- roda via terminal, sem abrir janela
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = PROJECT_ROOT / "data" / "processed" / "olist_analytics.parquet"
@@ -58,24 +58,24 @@ def savefig(fig: plt.Figure, name: str) -> None:
 
 
 # ----------------------------------------------------------------------
-# 1. Visao geral
+# 1. Visão geral
 # ----------------------------------------------------------------------
 
 
 def secao_visao_geral(df: pd.DataFrame) -> pd.DataFrame:
     print("\n" + "=" * 70)
-    print("1. VISAO GERAL")
+    print("1. VISÃO GERAL")
     print("=" * 70)
 
-    print(f"Shape (linhas x colunas, grao=item de pedido): {df.shape}")
+    print(f"Shape (linhas x colunas, grão=item de pedido): {df.shape}")
 
     periodo_ini = df["order_purchase_timestamp"].min()
     periodo_fim = df["order_purchase_timestamp"].max()
-    print(f"Periodo coberto (compra): {periodo_ini.date()} a {periodo_fim.date()}")
+    print(f"Período coberto (compra): {periodo_ini.date()} a {periodo_fim.date()}")
 
     n_pedidos = df["order_id"].nunique()
     n_clientes = df["customer_unique_id"].nunique()
-    print(f"Pedidos unicos: {n_pedidos:,} | Clientes unicos: {n_clientes:,}")
+    print(f"Pedidos únicos: {n_pedidos:,} | Clientes únicos: {n_clientes:,}")
 
     # Um pedido = 1a linha de compra (evita contar mes errado por causa de
     # multiplos itens no mesmo pedido, que tem a mesma order_purchase_timestamp)
@@ -85,34 +85,34 @@ def secao_visao_geral(df: pd.DataFrame) -> pd.DataFrame:
 
     fig, ax = plt.subplots(figsize=(11, 4.5))
     por_mes.plot(ax=ax, marker="o", color=sns.color_palette(PALETTE, 1)[0])
-    ax.set_title("Pedidos por mes")
-    ax.set_xlabel("Mes da compra")
+    ax.set_title("Pedidos por mês")
+    ax.set_xlabel("Mês da compra")
     ax.set_ylabel("Nº de pedidos")
     ax.yaxis.set_major_formatter(mticker.StrMethodFormatter("{x:,.0f}"))
     savefig(fig, "01_pedidos_por_mes.png")
 
     mes_pico = por_mes.idxmax()
     add_insight(
-        f"Volume de pedidos cresceu ao longo do periodo analisado, com pico em "
+        f"Volume de pedidos cresceu ao longo do período analisado, com pico em "
         f"{mes_pico.strftime('%m/%Y')} ({por_mes.max():,} pedidos); dado tem cauda "
-        f"final curta/incompleta (poucos meses no fim da serie)."
+        f"final curta/incompleta (poucos meses no fim da série)."
     )
 
     status_counts = pedidos["order_status"].value_counts(normalize=True) * 100
-    print("\nDistribuicao de order_status (%):")
+    print("\nDistribuição de order_status (%):")
     print(status_counts.round(1).to_string())
 
-    return pedidos  # reutilizado nas proximas secoes (1 linha por pedido)
+    return pedidos  # reutilizado nas próximas seções (1 linha por pedido)
 
 
 # ----------------------------------------------------------------------
-# 2. Satisfacao do cliente x atraso de entrega
+# 2. Satisfação do cliente x atraso de entrega
 # ----------------------------------------------------------------------
 
 
 def secao_satisfacao(pedidos: pd.DataFrame) -> None:
     print("\n" + "=" * 70)
-    print("2. SATISFACAO DO CLIENTE (review_score) x ATRASO DE ENTREGA")
+    print("2. SATISFAÇÃO DO CLIENTE (review_score) x ATRASO DE ENTREGA")
     print("=" * 70)
 
     com_review = pedidos.dropna(subset=["review_score"])
@@ -126,7 +126,7 @@ def secao_satisfacao(pedidos: pd.DataFrame) -> None:
         data=com_review, x="review_score", order=[1, 2, 3, 4, 5],
         hue="review_score", palette=PALETTE, legend=False, ax=ax,
     )
-    ax.set_title("Distribuicao de review_score")
+    ax.set_title("Distribuição de review_score")
     ax.set_xlabel("Nota da review (1-5)")
     ax.set_ylabel("Nº de pedidos")
     savefig(fig, "02_distribuicao_review_score.png")
@@ -134,17 +134,17 @@ def secao_satisfacao(pedidos: pd.DataFrame) -> None:
     pct_top2 = dist_scores.reindex([4, 5]).sum()
     pct_bottom2 = dist_scores.reindex([1, 2]).sum()
     add_insight(
-        f"{pct_top2:.1f}% das reviews sao nota 4 ou 5 (clientes satisfeitos), mas "
-        f"{pct_bottom2:.1f}% sao nota 1 ou 2 -- uma minoria vocal insatisfeita que "
+        f"{pct_top2:.1f}% das reviews são nota 4 ou 5 (clientes satisfeitos), mas "
+        f"{pct_bottom2:.1f}% são nota 1 ou 2 -- uma minoria vocal insatisfeita que "
         f"vale investigar a fundo."
     )
 
-    # Atraso: so pedidos entregues tem delivery_delay_days nao-nulo
+    # Atraso: só pedidos entregues têm delivery_delay_days não-nulo
     entregues = com_review.dropna(subset=["delivery_delay_days"])
     pct_atrasado_geral = entregues["is_late_delivery"].mean() * 100
 
     media_score_por_atraso = entregues.groupby("is_late_delivery")["review_score"].mean()
-    print("\nMedia de review_score por status de entrega:")
+    print("\nMédia de review_score por status de entrega:")
     print(media_score_por_atraso.round(2).to_string())
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
@@ -162,8 +162,8 @@ def secao_satisfacao(pedidos: pd.DataFrame) -> None:
     score_no_prazo = media_score_por_atraso.get(False, float("nan"))
     score_atrasado = media_score_por_atraso.get(True, float("nan"))
     add_insight(
-        f"Pedidos atrasados tem review_score medio de {score_atrasado:.2f}, contra "
-        f"{score_no_prazo:.2f} para pedidos no prazo -- diferenca de "
+        f"Pedidos atrasados têm review_score médio de {score_atrasado:.2f}, contra "
+        f"{score_no_prazo:.2f} para pedidos no prazo -- diferença de "
         f"{score_no_prazo - score_atrasado:.2f} pontos na escala de 1 a 5."
     )
 
@@ -176,7 +176,7 @@ def secao_satisfacao(pedidos: pd.DataFrame) -> None:
     add_insight(
         f"{pct_atrasado_nota_baixa:.1f}% dos pedidos atrasados recebem review_score <= 2, "
         f"contra apenas {pct_no_prazo_nota_baixa:.1f}% dos pedidos entregues no prazo -- "
-        f"atraso de entrega e um forte preditor de insatisfacao."
+        f"atraso de entrega é um forte preditor de insatisfação."
     )
 
     print(f"\n(Contexto: {pct_atrasado_geral:.1f}% dos pedidos entregues chegaram atrasados)")
@@ -194,7 +194,7 @@ def secao_atraso(pedidos: pd.DataFrame) -> None:
 
     entregues = pedidos.dropna(subset=["delivery_delay_days"]).copy()
     pct_nao_entregues = (1 - len(entregues) / len(pedidos)) * 100
-    print(f"Pedidos sem data de entrega registrada (cancelados/em transito): {pct_nao_entregues:.1f}%")
+    print(f"Pedidos sem data de entrega registrada (cancelados/em trânsito): {pct_nao_entregues:.1f}%")
 
     pct_atrasado = entregues["is_late_delivery"].mean() * 100
     add_insight(
@@ -202,7 +202,7 @@ def secao_atraso(pedidos: pd.DataFrame) -> None:
         f"data estimada."
     )
 
-    # Por estado do cliente -- top 15 estados por volume, pra nao poluir o grafico
+    # Por estado do cliente -- top 15 estados por volume, pra não poluir o gráfico
     top_estados = entregues["customer_state"].value_counts().head(15).index
     atraso_por_estado = (
         entregues[entregues["customer_state"].isin(top_estados)]
@@ -225,43 +225,43 @@ def secao_atraso(pedidos: pd.DataFrame) -> None:
     pior_valor = atraso_por_estado.iloc[0]
     add_insight(
         f"O estado do cliente com maior taxa de atraso (entre os 15 de maior volume) "
-        f"e {pior_estado}, com {pior_valor:.1f}% dos pedidos atrasados -- vs. media "
+        f"é {pior_estado}, com {pior_valor:.1f}% dos pedidos atrasados -- vs. média "
         f"geral de {pct_atrasado:.1f}%."
     )
 
-    # Evolucao no tempo
+    # Evolução no tempo
     entregues["mes_compra"] = entregues["order_purchase_timestamp"].dt.to_period("M").dt.to_timestamp()
     atraso_mes = entregues.groupby("mes_compra")["is_late_delivery"].mean() * 100
 
     fig, ax = plt.subplots(figsize=(11, 4.5))
     atraso_mes.plot(ax=ax, marker="o", color=sns.color_palette(PALETTE, 1)[0])
-    ax.set_title("% de pedidos atrasados por mes de compra")
-    ax.set_xlabel("Mes da compra")
+    ax.set_title("% de pedidos atrasados por mês de compra")
+    ax.set_xlabel("Mês da compra")
     ax.set_ylabel("% atrasado")
     savefig(fig, "05_atraso_evolucao_mensal.png")
 
-    # Cliente x vendedor em estados diferentes -- proxy de distancia logistica
+    # Cliente x vendedor em estados diferentes -- proxy de distância logística
     cruz = pedidos.dropna(subset=["delivery_delay_days", "customer_state", "seller_state"]).copy()
     cruz["mesmo_estado"] = cruz["customer_state"] == cruz["seller_state"]
     atraso_por_mesmo_estado = cruz.groupby("mesmo_estado")["is_late_delivery"].mean() * 100
     add_insight(
-        f"Quando cliente e vendedor estao no mesmo estado, {atraso_por_mesmo_estado.get(True, float('nan')):.1f}% "
-        f"dos pedidos atrasam; quando estao em estados diferentes, sobe para "
-        f"{atraso_por_mesmo_estado.get(False, float('nan')):.1f}% -- distancia logistica pesa no prazo."
+        f"Quando cliente e vendedor estão no mesmo estado, {atraso_por_mesmo_estado.get(True, float('nan')):.1f}% "
+        f"dos pedidos atrasam; quando estão em estados diferentes, sobe para "
+        f"{atraso_por_mesmo_estado.get(False, float('nan')):.1f}% -- distância logística pesa no prazo."
     )
 
 
 # ----------------------------------------------------------------------
-# 4. Ticket medio por categoria de produto
+# 4. Ticket médio por categoria de produto
 # ----------------------------------------------------------------------
 
 
 def secao_categorias(df: pd.DataFrame) -> None:
     print("\n" + "=" * 70)
-    print("4. TICKET MEDIO / VALOR POR CATEGORIA DE PRODUTO (TOP 10)")
+    print("4. TICKET MÉDIO / VALOR POR CATEGORIA DE PRODUTO (TOP 10)")
     print("=" * 70)
 
-    # Aqui o grao de item faz sentido: preco e por item, nao por pedido
+    # Aqui o grão de item faz sentido: preço é por item, não por pedido
     cat_col = "product_category_name_english"
     top10_categorias = df[cat_col].value_counts().head(10).index
 
@@ -284,38 +284,38 @@ def secao_categorias(df: pd.DataFrame) -> None:
         y=cat_col, x="price", order=ordem,
         hue=cat_col, palette=PALETTE, legend=False, ax=ax, errorbar=None,
     )
-    ax.set_title("Preco medio por item - top 10 categorias (por volume)")
-    ax.set_xlabel("Preco medio (R$)")
+    ax.set_title("Preço médio por item - top 10 categorias (por volume)")
+    ax.set_xlabel("Preço médio (R$)")
     ax.set_ylabel("Categoria")
     savefig(fig, "06_preco_medio_top10_categorias.png")
 
     cat_mais_cara = resumo_cat["preco_medio"].idxmax()
     cat_mais_barata = resumo_cat["preco_medio"].idxmin()
     add_insight(
-        f"Entre as top 10 categorias por volume, '{cat_mais_cara}' tem o maior preco "
-        f"medio por item (R$ {resumo_cat.loc[cat_mais_cara, 'preco_medio']:.2f}), "
+        f"Entre as top 10 categorias por volume, '{cat_mais_cara}' tem o maior preço "
+        f"médio por item (R$ {resumo_cat.loc[cat_mais_cara, 'preco_medio']:.2f}), "
         f"enquanto '{cat_mais_barata}' tem o menor (R$ {resumo_cat.loc[cat_mais_barata, 'preco_medio']:.2f})."
     )
 
-    # Ticket medio de pagamento por pedido (nao por item) para ter uma visao
+    # Ticket médio de pagamento por pedido (não por item) para ter uma visão
     # complementar de valor "por compra"
     pedidos = df.drop_duplicates(subset="order_id")
     ticket_medio_pedido = pedidos["payment_total_value"].mean()
-    print(f"\nTicket medio por pedido (payment_total_value): R$ {ticket_medio_pedido:.2f}")
+    print(f"\nTicket médio por pedido (payment_total_value): R$ {ticket_medio_pedido:.2f}")
 
 
 # ----------------------------------------------------------------------
-# 5. Angulo adicional: metodo de pagamento e parcelas x satisfacao/atraso
+# 5. Ângulo adicional: método de pagamento e parcelas x satisfação/atraso
 # ----------------------------------------------------------------------
 
 
 def secao_pagamento(pedidos: pd.DataFrame) -> None:
     print("\n" + "=" * 70)
-    print("5. PAGAMENTO: METODO E PARCELAS")
+    print("5. PAGAMENTO: MÉTODO E PARCELAS")
     print("=" * 70)
 
     dist_metodo = pedidos["payment_type"].value_counts(normalize=True) * 100
-    print("Distribuicao de payment_type (%):")
+    print("Distribuição de payment_type (%):")
     print(dist_metodo.round(1).to_string())
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
@@ -324,20 +324,20 @@ def secao_pagamento(pedidos: pd.DataFrame) -> None:
         order=pedidos["payment_type"].value_counts().index,
         hue="payment_type", palette=PALETTE, legend=False, ax=ax,
     )
-    ax.set_title("Pedidos por metodo de pagamento")
+    ax.set_title("Pedidos por método de pagamento")
     ax.set_xlabel("Nº de pedidos")
-    ax.set_ylabel("Metodo de pagamento")
+    ax.set_ylabel("Método de pagamento")
     savefig(fig, "07_metodo_pagamento.png")
 
     metodo_top = dist_metodo.index[0]
     add_insight(
-        f"'{metodo_top}' e o metodo de pagamento mais usado, respondendo por "
+        f"'{metodo_top}' é o método de pagamento mais usado, respondendo por "
         f"{dist_metodo.iloc[0]:.1f}% dos pedidos."
     )
 
-    # Relacao parcelas x ticket
+    # Relação parcelas x ticket
     corr = pedidos[["payment_installments", "payment_total_value"]].corr().iloc[0, 1]
-    print(f"\nCorrelacao (Pearson, descritiva) entre nº de parcelas e valor pago: {corr:.2f}")
+    print(f"\nCorrelação (Pearson, descritiva) entre nº de parcelas e valor pago: {corr:.2f}")
 
 
 # ----------------------------------------------------------------------
@@ -370,8 +370,8 @@ def main() -> None:
     for i, insight in enumerate(INSIGHTS, start=1):
         print(f"{i}. {insight}")
 
-    print(f"\nGraficos salvos em: {REPORTS_DIR}")
-    print("Ver tambem reports/INSIGHTS.md para insights + recomendacoes de negocio.")
+    print(f"\nGráficos salvos em: {REPORTS_DIR}")
+    print("Ver também reports/INSIGHTS.md para insights + recomendações de negócio.")
 
 
 if __name__ == "__main__":

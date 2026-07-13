@@ -54,8 +54,8 @@ def check_raw_files_exist() -> None:
         raise FileNotFoundError(
             "Arquivos brutos ausentes em data/raw/: "
             + ", ".join(missing)
-            + "\nRode `python data/download.py` (após configurar a Kaggle API key -- "
-            "veja data/README.md) para baixar o dataset antes de rodar este pipeline."
+            + "\nRode `python data/download.py` para baixar o dataset antes de rodar "
+            "este pipeline (veja data/README.md)."
         )
 
 

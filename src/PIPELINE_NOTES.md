@@ -119,12 +119,7 @@ pipeline, seção "Colunas com maior % de nulos").
   de mapa/distância.
 - Não trata os textos de review (NLP/sentimento) -- fora de escopo.
 
-## Status de execução
+## Resultado
 
-Este pipeline **não pôde ser executado de ponta a ponta** nesta máquina:
-não há dados brutos em `data/raw/` (Kaggle API não estava autenticada no
-momento em que este pipeline foi escrito) nem `pandas`/`pyarrow`
-instalados no ambiente Python usado para escrevê-lo. O código foi revisado
-e validado sintaticamente (`python -m py_compile`), mas não rodado
-ponta-a-ponta contra os CSVs reais. Ver `data/README.md` para configurar a
-API key do Kaggle e `requirements.txt` para as dependências Python.
+Executado de ponta a ponta contra os CSVs reais: 112.650 linhas x 39
+colunas em `data/processed/olist_analytics.parquet`.
