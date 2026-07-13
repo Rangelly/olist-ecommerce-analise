@@ -114,8 +114,8 @@ pipeline, seção "Colunas com maior % de nulos").
 
 - Nenhuma análise exploratória, gráfico ou conclusão de negócio (fica para
   a etapa de análise/notebook).
-- Não usa `geolocation` (tabela de lat/long por CEP) -- não fazia parte do
-  join analítico pedido; pode ser incorporada depois se a análise precisar
+- Não usa `geolocation` (tabela de lat/long por CEP) -- fica fora deste
+  primeiro pipeline; pode ser incorporada depois se a análise precisar
   de mapa/distância.
 - Não trata os textos de review (NLP/sentimento) -- fora de escopo.
 
